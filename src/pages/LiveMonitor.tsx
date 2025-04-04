@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import Header from "@/components/Header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,10 +16,16 @@ const generateDummyData = (count: number, baseValue: number, variance: number) =
 
 const LiveMonitor = () => {
   const { 
-    isConnected, 
-    lastMessage,
-    connectionStatus
+    connectionStatus,
+    historyData,
+    temperature,
+    humidity,
+    ultrasonicDistance
   } = useSensorStore();
+
+  const isConnected = connectionStatus === 'connected' || connectionStatus === 'simulation';
+  const lastMessage = temperature !== null || humidity !== null || ultrasonicDistance !== null ? 
+    { temperature, humidity, ultrasonicDistance } : null;
 
   const [temperatureData, setTemperatureData] = useState(generateDummyData(10, 25, 2));
   const [humidityData, setHumidityData] = useState(generateDummyData(10, 50, 5));
@@ -75,7 +82,7 @@ const LiveMonitor = () => {
               <CardHeader className="pb-2">
                 <CardTitle>Temperature</CardTitle>
                 <CardDescription>
-                  {lastMessage?.temperature ? `${lastMessage.temperature.toFixed(1)}°C` : "No data"}
+                  {temperature !== null ? `${temperature.toFixed(1)}°C` : "No data"}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -92,7 +99,7 @@ const LiveMonitor = () => {
               <CardHeader className="pb-2">
                 <CardTitle>Humidity</CardTitle>
                 <CardDescription>
-                  {lastMessage?.humidity ? `${lastMessage.humidity.toFixed(1)}%` : "No data"}
+                  {humidity !== null ? `${humidity.toFixed(1)}%` : "No data"}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -109,7 +116,7 @@ const LiveMonitor = () => {
               <CardHeader className="pb-2">
                 <CardTitle>Fill Level</CardTitle>
                 <CardDescription>
-                  {lastMessage?.ultrasonicDistance ? `${(100 - (lastMessage.ultrasonicDistance)).toFixed(1)}%` : "No data"}
+                  {ultrasonicDistance !== null ? `${(100 - ultrasonicDistance).toFixed(1)}%` : "No data"}
                 </CardDescription>
               </CardHeader>
               <CardContent>
