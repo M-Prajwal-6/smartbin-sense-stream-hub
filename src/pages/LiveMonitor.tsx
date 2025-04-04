@@ -1,9 +1,8 @@
-
 import { useEffect, useState } from "react";
 import Header from "@/components/Header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { useWebsocketStore } from "@/services/websocketService";
+import { useSensorStore } from "@/services/websocketService";
 import SensorChart from "@/components/SensorChart";
 
 // Dummy data for initial rendering
@@ -19,7 +18,7 @@ const LiveMonitor = () => {
     isConnected, 
     lastMessage,
     connectionStatus
-  } = useWebsocketStore();
+  } = useSensorStore();
 
   const [temperatureData, setTemperatureData] = useState(generateDummyData(10, 25, 2));
   const [humidityData, setHumidityData] = useState(generateDummyData(10, 50, 5));
