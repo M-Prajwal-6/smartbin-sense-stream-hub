@@ -41,40 +41,46 @@ const SensorChart: React.FC<SensorChartProps> = ({
       </CardHeader>
       <CardContent className="pt-0">
         <div className="h-[250px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={chartData} margin={{ top: 5, right: 20, bottom: 20, left: 10 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-              <XAxis 
-                dataKey="time" 
-                tick={{ fontSize: 12 }} 
-                stroke="#888888" 
-                tickLine={false} 
-                axisLine={false}
-                minTickGap={50}
-              />
-              <YAxis 
-                tick={{ fontSize: 12 }} 
-                stroke="#888888"
-                tickLine={false}
-                axisLine={false}
-                unit={unit}
-              />
-              <Tooltip 
-                contentStyle={{ backgroundColor: 'white', border: '1px solid #f0f0f0', borderRadius: '4px' }}
-                labelStyle={{ color: '#444', fontWeight: 'bold', marginBottom: '4px' }}
-                itemStyle={{ padding: '2px 0' }}
-                formatter={(value) => [`${value} ${unit}`, dataKey]}
-              />
-              <Line 
-                type="monotone" 
-                dataKey={dataKey} 
-                stroke={color} 
-                strokeWidth={2}
-                dot={false}
-                activeDot={{ r: 6, strokeWidth: 0 }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
+          {chartData.length > 0 ? (
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={chartData} margin={{ top: 5, right: 20, bottom: 20, left: 10 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <XAxis 
+                  dataKey="time" 
+                  tick={{ fontSize: 12 }} 
+                  stroke="#888888" 
+                  tickLine={false} 
+                  axisLine={false}
+                  minTickGap={50}
+                />
+                <YAxis 
+                  tick={{ fontSize: 12 }} 
+                  stroke="#888888"
+                  tickLine={false}
+                  axisLine={false}
+                  unit={unit}
+                />
+                <Tooltip 
+                  contentStyle={{ backgroundColor: 'white', border: '1px solid #f0f0f0', borderRadius: '4px' }}
+                  labelStyle={{ color: '#444', fontWeight: 'bold', marginBottom: '4px' }}
+                  itemStyle={{ padding: '2px 0' }}
+                  formatter={(value) => [`${value} ${unit}`, dataKey]}
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey={dataKey} 
+                  stroke={color} 
+                  strokeWidth={2}
+                  dot={false}
+                  activeDot={{ r: 6, strokeWidth: 0 }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-gray-500">
+              Waiting for data...
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>

@@ -1,11 +1,12 @@
 
 import { useEffect } from "react";
-import { useSensorStore, simulateSensorData } from "@/services/websocketService";
+import { useSensorStore } from "@/services/websocketService";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import SensorCard from "@/components/SensorCard";
 import DustbinLevel from "@/components/DustbinLevel";
 import SensorChart from "@/components/SensorChart";
 import { Thermometer, Droplets, Ruler } from "lucide-react";
+import { format } from "date-fns";
 
 const Dashboard = () => {
   const { 
@@ -13,14 +14,18 @@ const Dashboard = () => {
     humidity, 
     ultrasonicDistance, 
     fillPercentage,
-    historyData 
+    historyData,
+    connectionStatus,
+    lastConnectionTime
   } = useSensorStore();
 
-  // Use simulation data for development until the real server is connected
-  useEffect(() => {
-    simulateSensorData();
-  }, []);
+  // Format the last connection time
+  const formattedLastConnectionTime = lastConnectionTime 
+    ? format(lastConnectionTime, 'h:mm:ss a')
+    : 'Never';
 
+  // We don't need to call simulateSensorData() anymore as we're using real data
+  
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-6">Smart Dustbin Monitoring Dashboard</h1>
@@ -109,10 +114,29 @@ const Dashboard = () => {
             </div>
 
             <div className="flex flex-col gap-2">
-              <div className="text-sm font-medium">Last Connection</div>
+              <div className="text-sm font-medium">Connection Status</div>
               <div className="text-sm text-muted-foreground flex items-center">
-                <div className="w-2 h-2 rounded-full bg-green-500 mr-2 animate-pulse-gentle"></div>
-                Connected - Receiving data
+                {connectionStatus === 'connected' && (
+                  <>
+                    <div className="w-2 h-2 rounded-full bg-green-500 mr-2 animate-pulse"></div>
+                    Connected - Receiving data
+                  </>
+                )}
+                {connectionStatus === 'connecting' && (
+                  <>
+                    <div className="w-2 h-2 rounded-full bg-amber-500 mr-2 animate-pulse"></div>
+                    Connecting to server...
+                  </>
+                )}
+                {connectionStatus === 'disconnected' && (
+                  <>
+                    <div className="w-2 h-2 rounded-full bg-red-500 mr-2"></div>
+                    Disconnected - Attempting to reconnect
+                  </>
+                )}
+              </div>
+              <div className="text-xs text-muted-foreground">
+                Last data received: {formattedLastConnectionTime}
               </div>
             </div>
           </CardContent>

@@ -1,3 +1,4 @@
+
 import { create } from 'zustand';
 
 export interface SensorData {
@@ -60,13 +61,14 @@ interface SensorStore extends SensorData {
   updateData: (data: SensorData) => void;
   fillPercentage: number;
   binStatus: ReturnType<typeof getBinStatus>;
+  lastConnectionTime: Date | null;
+  connectionStatus: 'connected' | 'disconnected' | 'connecting';
 }
 
 // Initialize WebSocket and create store
 const initWebSocket = (setStore: (fn: (state: SensorStore) => SensorStore) => void) => {
-  // For development, connect to localhost
-  // For production, you would connect to your server
-  const wsUrl = 'ws://localhost:3000';
+  // Connect to your backend server
+  const serverUrl = 'ws://192.168.1.104:3000'; // Replace with your server IP if different
   
   let ws: WebSocket | null = null;
   let reconnectTimeout: number | null = null;
@@ -78,16 +80,30 @@ const initWebSocket = (setStore: (fn: (state: SensorStore) => SensorStore) => vo
       reconnectTimeout = null;
     }
 
+    // Update connection status to connecting
+    setStore((state) => ({
+      ...state,
+      connectionStatus: 'connecting'
+    }));
+
     // Create new WebSocket connection
-    ws = new WebSocket(wsUrl);
+    ws = new WebSocket(serverUrl);
 
     ws.onopen = () => {
-      console.log('WebSocket connection established');
+      console.log('WebSocket connection established to real server');
+      
+      // Update connection status and time
+      setStore((state) => ({
+        ...state,
+        connectionStatus: 'connected',
+        lastConnectionTime: new Date()
+      }));
     };
 
     ws.onmessage = (event) => {
       try {
         const data: SensorData = JSON.parse(event.data);
+        console.log('Received sensor data:', data);
         
         // Update store with new data
         setStore((state) => {
@@ -99,6 +115,7 @@ const initWebSocket = (setStore: (fn: (state: SensorStore) => SensorStore) => vo
             ...data,
             fillPercentage,
             binStatus,
+            lastConnectionTime: new Date()
           };
         });
         
@@ -149,12 +166,26 @@ const initWebSocket = (setStore: (fn: (state: SensorStore) => SensorStore) => vo
 
     ws.onclose = () => {
       console.log('WebSocket connection closed. Reconnecting...');
+      
+      // Update connection status
+      setStore((state) => ({
+        ...state,
+        connectionStatus: 'disconnected'
+      }));
+      
       // Try to reconnect after 5 seconds
       reconnectTimeout = window.setTimeout(connectWebSocket, 5000);
     };
 
     ws.onerror = (error) => {
       console.error('WebSocket error:', error);
+      
+      // Update connection status
+      setStore((state) => ({
+        ...state,
+        connectionStatus: 'disconnected'
+      }));
+      
       // Close the connection (will trigger onclose and reconnect)
       ws?.close();
     };
@@ -186,6 +217,8 @@ export const useSensorStore = create<SensorStore>((set) => {
     ultrasonicDistance: null,
     fillPercentage: 0,
     binStatus: 'empty',
+    lastConnectionTime: null,
+    connectionStatus: 'connecting',
     
     historyData: {
       temperature: [],
@@ -251,6 +284,5 @@ export const simulateSensorData = () => {
   }, 3000);
 };
 
-// Call simulation function for development
-// Comment this out when connecting to the real WebSocket server
+// Comment out simulation function as we're using real data now
 // simulateSensorData();
