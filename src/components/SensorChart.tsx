@@ -77,8 +77,11 @@ const SensorChart: React.FC<SensorChartProps> = ({
               </LineChart>
             </ResponsiveContainer>
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-gray-500">
-              Waiting for data...
+            <div className="w-full h-full flex items-center justify-center text-gray-500 flex-col">
+              <div className="animate-pulse text-center">Waiting for data...</div>
+              <div className="text-xs text-gray-400 mt-2">
+                {title === "Temperature History" || title === "Humidity History" ? "(Simulation data will appear shortly)" : ""}
+              </div>
             </div>
           )}
         </div>
